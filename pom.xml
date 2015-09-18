@@ -20,11 +20,11 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-<!--                    <archive>
+                    <archive>
                         <manifest>
                             <mainClass>com.alexjalg.monitorear.Monitor</mainClass>
                         </manifest>
-                    </archive>-->
+                    </archive>
                 </configuration>
                 <executions>
                     <execution>
