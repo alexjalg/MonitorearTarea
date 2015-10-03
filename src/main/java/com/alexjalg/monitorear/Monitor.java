@@ -6,6 +6,8 @@
 package com.alexjalg.monitorear;
 
 import com.alexjalg.clientws.Client;
+import com.alexjalg.utilitario.Tarea;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +19,7 @@ import java.util.ArrayList;
  */
 public class Monitor {
 
-    private ArrayList<String> listTaskFall = new ArrayList<String>();
+    private ArrayList<Tarea> listTaskFall = new ArrayList<Tarea>();
     private Client clienteWS = new Client();
 
     public static void main(String[] args) {
@@ -25,9 +27,9 @@ public class Monitor {
     }
 
     public void execute() {
-        for (String task : clienteWS.listTaskReview()) {
-            if (!checkActiveTask(task)) {
-                this.listTaskFall.add(task);
+        for (Tarea tarea : clienteWS.listTaskReview()) {
+            if (!checkActiveTask(tarea.getNombreTarea())) {
+                this.listTaskFall.add(tarea);
             }
         }
         if (this.listTaskFall.size() > 0) {
