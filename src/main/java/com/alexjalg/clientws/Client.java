@@ -4,8 +4,7 @@
  * and open the template in the editor.
  */
 package com.alexjalg.clientws;
-
-import java.awt.List;
+ 
 import java.util.ArrayList;
 
 import com.alexjalg.utilitario.Consumir;
@@ -26,6 +25,7 @@ public class Client {
 			System.out.println(tarea.getNombreServidor());
 			System.out.println();
 		}
+		client.registrarIncidencia("1");
 	}
 
 	public ArrayList<Tarea> listTaskReview() {
@@ -35,11 +35,42 @@ public class Client {
 	public void sendTasksFalls(ArrayList<Tarea> listTaskFall) {
 		// Aqui se consume el webService que enviara las tareas caidas a Google
 		for (Tarea tarea : listTaskFall) {
-			System.out.println(tarea.getNombreTarea().toUpperCase()
-					+ " esta caida");
+			this.registrarIncidencia(tarea.getId());
 		}
 	}
 
+	public boolean registrarIncidencia(String idTarea){
+			boolean result = false;
+			Consumir util = new Consumir();
+			String targetEndpointAddress = "http://52.88.24.228/ServicioTareas/ServiciciosSOAP.svc";
+			String xml = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">"
+					+ "<soapenv:Header/>"
+					+ "<soapenv:Body>"
+					+ "<tem:RegistrarIncidencia>"
+					+ "<tem:IdTarea>"+idTarea+"</tem:IdTarea>"
+					+ "<tem:Estado>Pendiente</tem:Estado>"
+					+ "</tem:RegistrarIncidencia>"
+					+ "</soapenv:Body>" 
+					+ "</soapenv:Envelope>";
+			String soapAction = "http://tempuri.org/IServiciciosSOAP/RegistrarIncidencia";
+			String operation = "RegistrarIncidencia";
+			String xmlResponse = util.InvocarWS(targetEndpointAddress, operation,
+					xml, soapAction);
+			try {
+				String response = util.getNodeValue(xmlResponse,
+						"RegistrarIncidenciaResult");
+				if (response == null)
+					result = false;
+				String success = util.getNodeValue(response, "a:Success");
+				if(success.equals("true")){
+					result = true;
+				}
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+		return result;
+	}
+	
 	public ArrayList<Tarea> obtenerTarea(String servidor) {
 		ArrayList<Tarea> listTarea = new ArrayList<Tarea>();
 		Consumir util = new Consumir();
