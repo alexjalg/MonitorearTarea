@@ -57,7 +57,7 @@
             </resource>
         </resources>
     </build>
-     <dependencies>
+    <dependencies>
         <dependency>
             <groupId>org.apache.axis</groupId>
             <artifactId>axis</artifactId>
@@ -83,6 +83,12 @@
             <artifactId>commons-logging</artifactId>
             <version>1.0.4</version>
         </dependency>  
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.5.0-b01</version>
+        </dependency>
+
     </dependencies>
 
 </project>

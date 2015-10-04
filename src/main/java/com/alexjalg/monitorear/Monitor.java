@@ -28,6 +28,7 @@ public class Monitor {
 
     public void execute() {
         for (Tarea tarea : clienteWS.listTaskReview()) {
+            System.out.println("revisando tarea "+tarea.getNombreTarea()+ " ...");
             if (!checkActiveTask(tarea.getNombreTarea())) {
                 this.listTaskFall.add(tarea);
             }
