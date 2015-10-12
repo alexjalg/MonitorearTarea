@@ -6,12 +6,15 @@
 package com.alexjalg.monitorear;
 
 import com.alexjalg.clientws.Client;
+import com.alexjalg.utilitario.Fichero;
 import com.alexjalg.utilitario.Tarea;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -28,14 +31,42 @@ public class Monitor {
 
     public void execute() {
         for (Tarea tarea : clienteWS.listTaskReview()) {
-            System.out.println("revisando tarea "+tarea.getNombreTarea()+ " ...");
+            System.out.println("revisando tarea " + tarea.getNombreTarea() + " ...");
             if (!checkActiveTask(tarea.getNombreTarea())) {
                 this.listTaskFall.add(tarea);
             }
         }
-        if (this.listTaskFall.size() > 0) {
-            this.clienteWS.sendTasksFalls(listTaskFall);
+//        if (this.listTaskFall.size() > 0) {
+//            this.clienteWS.sendTasksFalls(listTaskFall);
+//        }
+
+        if (this.listTaskFall.isEmpty()) {
+            return;
         }
+
+        Fichero fichero = new Fichero();
+        File file = new File("C:\\Monitor\\taskfail.txt");
+        if (!this.listTaskFall.isEmpty()) {
+            ArrayList<Tarea> listNuevosErrores = new ArrayList<Tarea>();
+            if (file.exists()) {
+                for (Tarea string : this.listTaskFall) {
+                    if (!fichero.buscarRegistro(file, string.getId())) {
+                        listNuevosErrores.add(string);
+                        fichero.escribirFichero(file, string.getId());
+                    }
+                }
+            } else {
+                for (Tarea string : this.listTaskFall) {
+                    listNuevosErrores.add(string);
+                    fichero.escribirFichero(file, string.getId());
+                }
+            }
+            if (listNuevosErrores.size() > 0) {
+                this.clienteWS.sendTasksFalls(listNuevosErrores);
+            }
+        }
+        eliminarErroresTemporales(fichero, file, this.listTaskFall);
+
     }
 
     public boolean checkActiveTask(String task) {
@@ -93,4 +124,38 @@ public class Monitor {
         }
         return true;
     }
+
+    public void eliminarErroresTemporales(
+            Fichero fichero,
+            File file,
+            ArrayList<Tarea> listTask) {
+        /**
+         * *
+         * Elimina errores del archivo temporal si es que el ws no le devuelve
+         * este *
+         */
+        if (file.exists()) {
+            // Eliminar los errores del file que no se envian en los errores
+            // del ws.
+            boolean errorRegistrado;
+            List<String> listAntiguosErrores = fichero.consultarRegistros(file);
+            String sNuevoError = "";
+            for (String string : listAntiguosErrores) {
+                errorRegistrado = false;
+                for (Tarea stringErrorNuevo : listTask) {
+                    sNuevoError = stringErrorNuevo.getId();
+                    if (sNuevoError.equalsIgnoreCase(string)) {
+                        errorRegistrado = true;
+                        break;
+                    }
+                }
+                if (!errorRegistrado) {
+                    System.out.println("linea a eliminar =)...." + string);
+                    fichero.eliminarRegistro(file, string);
+                }
+            }
+        }
+        System.out.println("salimos de la funcion....");
+    }
+
 }
